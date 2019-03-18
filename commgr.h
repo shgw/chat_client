@@ -42,7 +42,11 @@ public:
     void ExeCallback();
     void SetInterface( MainWindow* inter);
 
+#ifndef __LINUX
     static unsigned int ProcThread(void* arg);
+#else
+    static void* ProcThread(void* arg);
+#endif
 
     void SetLength(char* szSendMsg, char* szMsg, int nLen);
     void MakeHeader( ComMsg* msg, const char* szSrc, const char* szDest, const char* szKind, const char* szId);

@@ -11,6 +11,8 @@
 #define SD_BOTH SHUT_RDWR
 #define INVALID_SOCKET  -1
 #define SOCKET_ERROR    -1
+#define GetLastError()  errno
+#define closesocket     close
 #else
 #include <winsock2.h>
 #endif

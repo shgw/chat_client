@@ -7,6 +7,9 @@
 #include "uimgr.h"
 #include <qtimer.h>
 
+#ifdef __LINUX
+#include <pthread.h>
+#endif
 
 
 namespace Ui {
@@ -48,6 +51,11 @@ private:
 
     QTimer* m_timer;
     bool m_bScroll;
+
+#ifdef __LINUX
+    pthread_t m_pthread;
+    int m_threaID;
+#endif
 
     void SpreadLongMsg(ChatData* data);
     void FoldLongMsg(ChatData* data);

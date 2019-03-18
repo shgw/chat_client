@@ -18,10 +18,13 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_bScroll = false;
+    setFixedSize(this->size());
 
+    m_bScroll = false;
+#ifndef __LINUX
     WSADATA wsa;
     WSAStartup(MAKEWORD(2,2), &wsa);
+#endif
 
     m_ComMgr.SetInterface( this );
 
@@ -49,8 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_timer = new QTimer();
     connect( m_timer, SIGNAL(timeout()), this, SLOT(OnTimer()));
 
-    ui->sendBtn->setShortcut(Qt::Key_Return);
-    ui->sendBtn->setShortcut(Qt::Key_Enter);
+    ui->sendBtn->setShortcut(Qt::Key_Return);    
 }
 
 MainWindow::~MainWindow()
@@ -71,7 +73,7 @@ void MainWindow::on_connectBtn_clicked()
     if( m_strSvrIP.length() <= 0)
     {
         QMessageBox box;
-        box.information(this, "Error", QString::fromLocal8Bit("IP¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä."));
+        box.information(this, "Error", QString::fromLocal8Bit("IPë¥¼ ìž…ë ¥í•´ì£¼ì„¸ìš”."));
         return;
     }
 
@@ -79,15 +81,15 @@ void MainWindow::on_connectBtn_clicked()
 
     if( m_strUserName.length() <= 0 )
     {
-        QMessageBox box;
-        box.information(this, "Error", QString::fromLocal8Bit("ÀÌ¸§À» ÀÔ·ÂÇØÁÖ¼¼¿ä."));
+        QMessageBox box;     
+     	box.information(this, "Error", QString::fromLocal8Bit("ì´ë¦„ì„ ìž…ë ¥í•´ì£¼ì„¸ìš”."));
         return;
     }
 
     if(  m_strUserName.toStdString().length() >= 20)
     {
         QMessageBox box;
-        box.information(this, "Error", QString::fromLocal8Bit("ÀÌ¸§ÀÌ ³Ê¹« ±é´Ï´Ù.(ÇÑ±Û 6ÀÚ ÀÌÇÏ)"));
+        box.information(this, "Error", QString::fromLocal8Bit("ì´ë¦„ì´ ë„ˆë¬´ ê¹ë‹ˆë‹¤.(í•œê¸€6ìžì´í•˜)"));
         return;
     }
 
@@ -102,20 +104,25 @@ void MainWindow::on_connectBtn_clicked()
         if( strcmp( body->result, MSG_RESULT_FAIL ) == 0 )
         {
             QMessageBox box;
-            box.information(this, QString::fromLocal8Bit("Á¢¼Ó½ÇÆÐ"), QString::fromLocal8Bit(body->reason));
+            box.information(this, QString::fromLocal8Bit("ì ‘ì† ì‹¤íŒ¨"), QString::fromLocal8Bit(body->reason));
         }
         else
         {
+#ifndef __LINUX
             _beginthreadex( NULL, 0, m_ComMgr.ProcThread, (void*)&m_ComMgr, 0, NULL );
+#else
+            m_threaID = pthread_create( &m_pthread, NULL, m_ComMgr.ProcThread, (void*)&m_ComMgr );
+#endif
             m_timer->start( TIMER );
-            m_log->WriteLog( LOG_LEVEL_NORMAL, "on_connectBtn_clicked : Á¢¼Ó ¼º°ø IP[%s] ID[%s]",
+            m_log->WriteLog( LOG_LEVEL_NORMAL, "on_connectBtn_clicked : ì ‘ì† ì„±ê³µ IP[%s] ID[%s]",
                             m_strSvrIP.toStdString().c_str(),
                             m_strUserName.toStdString().c_str());
 
             QWidget* p1 = new QWidget;
             QVBoxLayout *hl = new QVBoxLayout(p1);
 
-            QLabel* pb = new QLabel(QString::fromLocal8Bit("Á¢¼ÓÇÏ¼Ì½À´Ï´Ù."), p1);
+            //QLabel* pb = new QLabel(QString::fromLocal8Bit("ì ‘ì†í•˜ì…¨ìŠµë‹ˆë‹¤."), p1);
+            QLabel* pb = new QLabel("ì ‘ì† ëìŠµë‹ˆë‹¤.", p1);
             pb->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
             hl->addWidget(pb);
@@ -129,7 +136,8 @@ void MainWindow::on_connectBtn_clicked()
     else
     {
         QMessageBox box;
-        box.information(this, "Error", QString::fromLocal8Bit("Á¢¼ÓÇÏÁö ¸øÇß½À´Ï´Ù."));
+        box.information(this, "Error", QString::fromLocal8Bit("ì ‘ì†í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤."));
+
     }
 
 
@@ -151,7 +159,7 @@ void MainWindow::on_sendBtn_clicked()
     {
         m_log->WriteLog( LOG_LEVEL_ERROR, "on_sendBtn_clicked : Send Error");
         QMessageBox box;
-        box.information( this, "Error", QString::fromLocal8Bit("Àü¼ÛÇÏÁö ¸øÇß½À´Ï´Ù."));
+        box.information( this, "Error", QString::fromLocal8Bit("ì „ì†¡í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤."));
     }
     else
     {

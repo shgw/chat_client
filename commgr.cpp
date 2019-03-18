@@ -207,8 +207,11 @@ MainWindow* ComMgr::GetInterface()
     return m_interface;
 }
 
-
+#ifndef __LINUX
 unsigned int ComMgr::ProcThread(void* arg)
+#else
+void* ComMgr::ProcThread(void* arg)
+#endif
 {
     ComMgr* mgr = (ComMgr*)arg;
 
@@ -221,7 +224,9 @@ unsigned int ComMgr::ProcThread(void* arg)
         nRet = mgr->RecvMsg( szBuff );
         if( nRet == CSOCKET_CONTINUE )
         {
+#ifndef __LINUX
             Sleep(1);
+#endif
             continue;
         }
         else if (nRet == CSOCKET_FAIL )
@@ -236,8 +241,9 @@ unsigned int ComMgr::ProcThread(void* arg)
         {
             mgr->SetMsg( (ComMsg*)szBuff );
         }
-
+#ifndef __LINUX
         Sleep(1);
+#endif
     }
 
 }

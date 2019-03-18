@@ -12,6 +12,7 @@ SettingDialog::SettingDialog(QWidget *parent) :
     QSettings readini(INI_FILENAME, QSettings::IniFormat);
     QString str = readini.value("NETWORK/IP").toString();
     ui->lineEdit->setText(str);
+    setFixedSize(this->size());
 }
 
 SettingDialog::~SettingDialog()

@@ -2,7 +2,19 @@
 #define MSGMGR_H
 
 #include <queue>
+#ifndef __LINUX
 #include <windows.h>
+#else
+
+#include <pthread.h>
+
+#define HANDLE pthread_mutex_t
+
+#define TRUE    1
+#define FALSE   0
+
+
+#endif
 #include "socketmessage.h"
 
 class MsgMgr

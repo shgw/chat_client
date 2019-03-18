@@ -162,12 +162,13 @@ void UIMgr::ConnClient(ComMsg* msg)
 {
     EVT_CONN* body = (EVT_CONN*)msg->body;
     char szBuff[1024] = { 0 };
-    sprintf( szBuff, " ´ÔÀÌ Á¢¼ÓÇÏ¼Ì½À´Ï´Ù.");
+    sprintf( szBuff, " ë‹˜ì´ ì ‘ì†í•˜ì…¨ìŠµë‹ˆë‹¤.");
 
     QWidget* p1 = new QWidget;
     QVBoxLayout *hl = new QVBoxLayout(p1);
 
-    QString str = QString::fromLocal8Bit(szBuff);
+    //QString str = QString::fromLocal8Bit(szBuff);
+    QString str = szBuff;
     str = body->username + str;
     QLabel* pb = new QLabel(str, p1);
     pb->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
@@ -183,11 +184,12 @@ void UIMgr::DisconClient(ComMsg* msg)
 {
     EVT_CONN* body = (EVT_CONN*)msg->body;
     char szBuff[1024] = { 0 };
-    sprintf( szBuff, " ´ÔÀÌ ³ª°¡¼Ì½À´Ï´Ù.");
+    sprintf( szBuff, " ë‹˜ì´ ë‚˜ê°€ì…¨ìŠµë‹ˆë‹¤.");
 
     QWidget* p1 = new QWidget;
     QVBoxLayout *hl = new QVBoxLayout(p1);    
-    QString str = QString::fromLocal8Bit(szBuff);
+    //QString str = QString::fromLocal8Bit(szBuff);
+    QString str = szBuff;
     str = body->username + str;
     QLabel* pb = new QLabel(str, p1);
     pb->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
