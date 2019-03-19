@@ -146,7 +146,7 @@ int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
         }
     }
 
-    str = "\n" + str + "\n";
+    //str = "\n" + str + "\n";
     retMsg = str;
 
     return nState;

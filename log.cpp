@@ -4,6 +4,11 @@
 #include <stdarg.h>
 #include <time.h>
 #include <string>
+#ifndef __LINUX
+#include <windows.h>
+#else
+#include <sys/time.h>
+#endif
 
 
 
@@ -23,7 +28,7 @@ void CLog::SetOption(int nLevel, char* path, char* fileName)
     strcpy( m_path , path);
     strcpy( m_fileName , fileName);
 
-    sprintf( m_fullPath, "%s\\%s", m_path, m_fileName);
+    sprintf( m_fullPath, "%s/%s", m_path, m_fileName);
 
 }
 
@@ -49,6 +54,7 @@ int CLog::WriteLog( int nLevel, char* log, ...)
     int nRet = fwrite( buf, sizeof(char), strlen(buf), pFile);
     if ( nRet < strlen(buf) )
     {
+        fclose( pFile );
         return -1;
     }
     fwrite( "\n", 1, 1, pFile);
@@ -133,6 +139,7 @@ int CLog::WriteHEX( int nLevel, char* log, int nLen)
     int nRet = fwrite( strLog.c_str(), sizeof(char), strLog.size(), pFile);
     if ( nRet < strLog.size() )
     {
+        fclose( pFile );
         return -1;
     }
 
@@ -178,9 +185,19 @@ int CLog::GetLogLevelString( int nLevel, char* buf)
     cur_time = time(NULL);
 
     cur_tm = localtime( &cur_time );
+    int nMilSec;
+#ifndef __LINUX
+    SYSTEMTIME t;
+    GetLocalTime(&t);
+    nMilSec = t.wMilliseconds;
+#else
+    struct timeval tv = { 0 };
+    gettimeofday(&tv, 0);
+    nMilSec = tv.tv_usec;
+#endif
 
-    sprintf( buf, "[%-7s %04d/%02d/%02d %02d:%02d:%02d] ",
-             pLevel, cur_tm->tm_year+1900, cur_tm->tm_mon+1, cur_tm->tm_mday, cur_tm->tm_hour, cur_tm->tm_min, cur_tm->tm_sec);
+    sprintf( buf, "[%-7s %04d/%02d/%02d %02d:%02d:%02d.%03d] ",
+             pLevel, cur_tm->tm_year+1900, cur_tm->tm_mon+1, cur_tm->tm_mday, cur_tm->tm_hour, cur_tm->tm_min, cur_tm->tm_sec, nMilSec);
 
     return strlen(buf);
 }

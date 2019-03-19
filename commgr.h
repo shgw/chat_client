@@ -18,6 +18,8 @@ private:
     MainWindow* m_interface;
     MsgMgr m_MsgMgr;
 
+    bool m_bConnect;
+
 public:
     CLog m_log;
 
@@ -35,6 +37,8 @@ public:
     int GetMsgSize();
     void GetMsg( ComMsg* msg );
 
+    bool GetConnectionState();
+    void SetConnectionState( bool bConnect);
     QString GetSvrIP();
     QString GetUserName();
     MainWindow* GetInterface();

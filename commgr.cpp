@@ -14,6 +14,7 @@ ComMgr::ComMgr()
 
     m_log.SetOption( LOG_LEVEL_DETAIL, "./", "ComMgr.txt");
     m_log.WriteLog(LOG_LEVEL_NOTICE, "==========START ComMgr=============");
+    m_bConnect = false;
 
 }
 
@@ -24,6 +25,7 @@ ComMgr::~ComMgr()
 
 int ComMgr::ConnectSocket( QString strIP, QString strUserName, char* szMsg )
 {
+    m_bConnect = true;
     SetSvrIP( strIP );
     SetUserName( strUserName );
 
@@ -45,6 +47,7 @@ int ComMgr::ConnectSocket( QString strIP, QString strUserName, char* szMsg )
             {
                 //
                 m_log.WriteLog( LOG_LEVEL_ERROR, "ConnectSocket : send fail error[%d]", GetLastError());
+                m_bConnect = false;
             }
             else
             {
@@ -58,6 +61,7 @@ int ComMgr::ConnectSocket( QString strIP, QString strUserName, char* szMsg )
                     {
                         //
                         m_log.WriteLog( LOG_LEVEL_ERROR, "ConnectSocket : Recv Connect msg fail error[%d]", GetLastError());
+                        m_bConnect = false;
                         break;
                     }
                     else if ( nRet == CSOCKET_CONTINUE)
@@ -79,6 +83,7 @@ int ComMgr::ConnectSocket( QString strIP, QString strUserName, char* szMsg )
         else
         {
             m_log.WriteLog( LOG_LEVEL_ERROR, "ConnectSocket : Connect fail error[%d]", GetLastError());
+            m_bConnect = false;
 
         }
 
@@ -86,6 +91,7 @@ int ComMgr::ConnectSocket( QString strIP, QString strUserName, char* szMsg )
     else
     {
         m_log.WriteLog( LOG_LEVEL_ERROR, "ConnectSocket : Create Socket fail error[%d]", GetLastError());
+        m_bConnect = false;
     }
 
 
@@ -161,6 +167,7 @@ int ComMgr::RecvMsg(char* szBuff)
 int ComMgr::DisconnectSocket()
 {
     m_log.WriteLog( LOG_LEVEL_NORMAL, "DisconnectSocket : socket close");
+    m_bConnect = false;
     m_cltsock.CloseSocket();
 }
 void ComMgr::SetInterface( MainWindow* inter)
@@ -224,11 +231,11 @@ void* ComMgr::ProcThread(void* arg)
     char szBuff[MSG_MAX_BUFF];
     int nRet;
 
-    bool bConn = true;
+
 
     while(1)
     {
-        if( bConn == true )
+        if( mgr->GetConnectionState() == true )
         {
             memset( szBuff, 0x00, sizeof(szBuff) );
             nRet = mgr->RecvMsg( szBuff );
@@ -240,7 +247,7 @@ void* ComMgr::ProcThread(void* arg)
             else if (nRet == CSOCKET_FAIL )
             {
                 //ÀçÁ¢
-                bConn = false;
+                mgr->SetConnectionState( false );
                 mgr->m_log.WriteLog( LOG_LEVEL_ERROR, "ProcThread : recv error [%d]", GetLastError() );
                 mgr->DisconnectSocket();
 
@@ -256,7 +263,7 @@ void* ComMgr::ProcThread(void* arg)
             if( mgr->ConnectSocket( mgr->GetSvrIP(), mgr->GetUserName(), NULL ) == CSOCKET_SUCC )
             {
                 nSleepTime = 1;
-                bConn = true;
+                mgr->SetConnectionState( true );
                 mgr->m_log.WriteLog( LOG_LEVEL_NORMAL, "ProcThread : Reconnect Success." );
             }
             else
@@ -289,10 +296,15 @@ void ComMgr::GetMsg( ComMsg* msg )
     m_MsgMgr.Pop( msg );
 }
 
+bool ComMgr::GetConnectionState()
+{
+    return m_bConnect;
+}
 
-
-
-
+void ComMgr::SetConnectionState( bool bConnect )
+{
+    m_bConnect = bConnect;
+}
 
 
 

@@ -72,10 +72,17 @@ void MainWindow::on_settingBtn_clicked()
 
 void MainWindow::on_connectBtn_clicked()
 {
+    if ( m_ComMgr.GetConnectionState() == true)
+    {
+        QMessageBox box;
+        box.information(this, "Error", "이미 접속 중 입니다.");
+        return;
+
+    }
     if( m_strSvrIP.length() <= 0)
     {
         QMessageBox box;
-        box.information(this, "Error", QString::fromLocal8Bit("IP를 입력해주세요."));
+        box.information(this, "Error", "IP를 입력해주세요.");
         return;
     }
 
@@ -84,14 +91,20 @@ void MainWindow::on_connectBtn_clicked()
     if( m_strUserName.length() <= 0 )
     {
         QMessageBox box;     
-     	box.information(this, "Error", QString::fromLocal8Bit("이름을 입력해주세요."));
+        box.information(this, "Error", "이름을 입력해주세요.");
         return;
+    }
+    else
+    {
+        QSettings writeini( INI_FILENAME, QSettings::IniFormat );
+        writeini.setValue("USER/DEFAULT_NAME", m_strUserName);
+
     }
 
     if(  m_strUserName.toStdString().length() >= 20)
     {
         QMessageBox box;
-        box.information(this, "Error", QString::fromLocal8Bit("이름이 너무 깁니다.(한글6자이하)"));
+        box.information(this, "Error", "이름이 너무 깁니다.(한글6자이하)");
         return;
     }
 
@@ -105,8 +118,9 @@ void MainWindow::on_connectBtn_clicked()
 
         if( strcmp( body->result, MSG_RESULT_FAIL ) == 0 )
         {
-            QMessageBox box;
+            QMessageBox box;            
             box.information(this, "Error", QString::fromLocal8Bit(body->reason));
+            m_ComMgr.SetConnectionState( false );
         }
         else
         {
@@ -126,8 +140,6 @@ void MainWindow::on_connectBtn_clicked()
 
             QWidget* p1 = new QWidget;
             QVBoxLayout *hl = new QVBoxLayout(p1);
-
-            //QLabel* pb = new QLabel(QString::fromLocal8Bit("접속하셨습니다."), p1);
             QLabel* pb = new QLabel("접속 됐습니다.", p1);
             pb->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
@@ -142,7 +154,7 @@ void MainWindow::on_connectBtn_clicked()
     else
     {
         QMessageBox box;
-        box.information(this, "Error", QString::fromLocal8Bit("접속하지 못했습니다."));
+        box.information(this, "Error", "접속하지 못했습니다.");
 
     }
 
@@ -234,7 +246,7 @@ void MainWindow::ProcEvt( ComMsg* msg)
     }
     else
     {
-        m_log->WriteLog( LOG_LEVEL_WARN, "Unknown msgk id [%s]", msg->msgid);
+        m_log->WriteLog( LOG_LEVEL_WARN, "Unknown msg id [%s]", msg->msgid);
     }
 
 }
