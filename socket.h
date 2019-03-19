@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 #define SOCKET  int
 #define SD_BOTH SHUT_RDWR
 #define INVALID_SOCKET  -1

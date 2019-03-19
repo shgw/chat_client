@@ -4,6 +4,11 @@
 #define MSG_MAX_BUFF    2048
 #define SERVER_PORT     6788
 
+#ifdef __LINUX
+#include <unistd.h>
+#define Sleep   usleep
+#endif
+
 ComMgr::ComMgr()
 {
 
@@ -213,37 +218,55 @@ unsigned int ComMgr::ProcThread(void* arg)
 void* ComMgr::ProcThread(void* arg)
 #endif
 {
+    int nSleepTime = 1;
     ComMgr* mgr = (ComMgr*)arg;
 
     char szBuff[MSG_MAX_BUFF];
     int nRet;
 
+    bool bConn = true;
+
     while(1)
     {
-        memset( szBuff, 0x00, sizeof(szBuff) );
-        nRet = mgr->RecvMsg( szBuff );
-        if( nRet == CSOCKET_CONTINUE )
+        if( bConn == true )
         {
-#ifndef __LINUX
-            Sleep(1);
-#endif
-            continue;
-        }
-        else if (nRet == CSOCKET_FAIL )
-        {
-            //재접
-            mgr->m_log.WriteLog( LOG_LEVEL_ERROR, "ProcThread : recv error [%d]", GetLastError() );
-            mgr->m_log.WriteLog( LOG_LEVEL_NORMAL, "ProcThread : Reconnect" );
-            mgr->DisconnectSocket();            
-            mgr->ConnectSocket( mgr->GetSvrIP(), mgr->GetUserName(), NULL );
+            memset( szBuff, 0x00, sizeof(szBuff) );
+            nRet = mgr->RecvMsg( szBuff );
+            if( nRet == CSOCKET_CONTINUE )
+            {
+                Sleep(nSleepTime);
+                continue;
+            }
+            else if (nRet == CSOCKET_FAIL )
+            {
+                //재접
+                bConn = false;
+                mgr->m_log.WriteLog( LOG_LEVEL_ERROR, "ProcThread : recv error [%d]", GetLastError() );
+                mgr->DisconnectSocket();
+
+            }
+            else
+            {
+                mgr->SetMsg( (ComMsg*)szBuff );
+            }
         }
         else
         {
-            mgr->SetMsg( (ComMsg*)szBuff );
+            mgr->m_log.WriteLog( LOG_LEVEL_NORMAL, "ProcThread : Reconnect" );
+            if( mgr->ConnectSocket( mgr->GetSvrIP(), mgr->GetUserName(), NULL ) == CSOCKET_SUCC )
+            {
+                nSleepTime = 1;
+                bConn = true;
+                mgr->m_log.WriteLog( LOG_LEVEL_NORMAL, "ProcThread : Reconnect Success." );
+            }
+            else
+            {
+                nSleepTime = 5000;
+                mgr->m_log.WriteLog( LOG_LEVEL_ERROR, "ProcThread : Reconnect Fail error [%d]", GetLastError() );
+            }
+
         }
-#ifndef __LINUX
-        Sleep(1);
-#endif
+        Sleep(nSleepTime);
     }
 
 }

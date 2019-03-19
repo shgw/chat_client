@@ -52,6 +52,8 @@ private:
     QTimer* m_timer;
     bool m_bScroll;
 
+    bool m_bThread;
+
 #ifdef __LINUX
     pthread_t m_pthread;
     int m_threaID;

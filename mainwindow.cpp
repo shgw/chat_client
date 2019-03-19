@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m_bThread = false;
+
     setFixedSize(this->size());
 
     m_bScroll = false;
@@ -104,16 +106,20 @@ void MainWindow::on_connectBtn_clicked()
         if( strcmp( body->result, MSG_RESULT_FAIL ) == 0 )
         {
             QMessageBox box;
-            box.information(this, QString::fromLocal8Bit("접속 실패"), QString::fromLocal8Bit(body->reason));
+            box.information(this, "Error", QString::fromLocal8Bit(body->reason));
         }
         else
         {
+            if( m_bThread == false )
+            {
+                m_bThread = true;
 #ifndef __LINUX
-            _beginthreadex( NULL, 0, m_ComMgr.ProcThread, (void*)&m_ComMgr, 0, NULL );
+                _beginthreadex( NULL, 0, m_ComMgr.ProcThread, (void*)&m_ComMgr, 0, NULL );
 #else
-            m_threaID = pthread_create( &m_pthread, NULL, m_ComMgr.ProcThread, (void*)&m_ComMgr );
+                m_threaID = pthread_create( &m_pthread, NULL, m_ComMgr.ProcThread, (void*)&m_ComMgr );
 #endif
-            m_timer->start( TIMER );
+                m_timer->start( TIMER );
+            }
             m_log->WriteLog( LOG_LEVEL_NORMAL, "on_connectBtn_clicked : 접속 성공 IP[%s] ID[%s]",
                             m_strSvrIP.toStdString().c_str(),
                             m_strUserName.toStdString().c_str());

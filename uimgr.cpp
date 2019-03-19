@@ -9,7 +9,7 @@
 
 
 #define LINE_LIMIT  10
-#define WORD_LIMIT  42
+#define WORD_LIMIT  43
 
 UIMgr::UIMgr()
 {
@@ -127,7 +127,7 @@ int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
 
     int nLen = str.length();
 
-    if( nLen > 10)
+    if( nLen > LINE_LIMIT )
     {
         for( int i = 0 ; i < (nLen-1)/LINE_LIMIT ; i++)
         {
@@ -139,8 +139,8 @@ int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
             if( nLen > WORD_LIMIT )
             {
                 nState = FOLD_CHAT_BOX;
-                str.remove(WORD_LIMIT, nLen - WORD_LIMIT);
-                str.insert(WORD_LIMIT,"...");
+                str.remove(WORD_LIMIT - 3, nLen - WORD_LIMIT + 3);
+                str.insert(WORD_LIMIT - 3,"...");
             }
 
         }

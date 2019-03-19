@@ -67,5 +67,5 @@ SOCKET CSocket::GetSock()
 
 void CSocket::CloseSocket()
 {
-    shutdown( m_sock, SD_BOTH);
+    closesocket( m_sock );
 }

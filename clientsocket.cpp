@@ -33,12 +33,16 @@ int CClientSocket::RecvMsg(char* szMsg, int nLen)
         if( nMsgLen <= 0 )
         {
 #ifndef __LINUX
-            if( GetLastError() != WSAETIMEDOUT )
+            if( GetLastError() == WSAETIMEDOUT )
 #else
-            if( errno != ETIMEDOUT )
+            if( errno == ETIMEDOUT )
 #endif
             {
                 return CSOCKET_CONTINUE;
+            }
+            else
+            {
+                return CSOCKET_FAIL;
             }
         }
         else if( nMsgLen < nLen)
