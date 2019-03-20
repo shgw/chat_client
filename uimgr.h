@@ -3,6 +3,7 @@
 
 
 #include <map>
+#include <list>
 #include "socketmessage.h"
 #include "log.h"
 #include <qstring.h>
@@ -21,14 +22,21 @@ class QPushButton;
 typedef struct _ST_CHAT_DATA
 {
     int state;
-    char username[20];
-    char chat[1024];
+    char username[SOURCE_LENGTH];
+    char chat[CHAT_LENGTH];
     QPushButton* pBtn;
     QWidget* widget;
     QVBoxLayout *layout;
     QLabel* namelabel;
 
 }ChatData;
+
+typedef struct _ST_CONNECTION_GUI_DATA
+{
+    QWidget* widget;
+    QVBoxLayout* layout;
+    QLabel* label;
+}ConUIData;
 
 class UIMgr
 {
@@ -37,6 +45,8 @@ private:
 
     MainWindow* m_pWin;
     std::map<QPushButton*, ChatData> m_ChatMap;
+
+    std::list<ConUIData> m_lstConnectionGUIData;
 
     CLog m_log;
 
@@ -51,6 +61,9 @@ public:
     void DisconClient(ComMsg* msg);
     ChatData* FindChat(QPushButton* pBtn);
     void SetInterface(MainWindow* pInterface);
+    void DeleteChatData();
+    void SetConnectionGUIData( QWidget* widget, QVBoxLayout* layout, QLabel* label );
+    void DeleteConnectionGUIData();
 };
 
 #endif // UIMGR_H

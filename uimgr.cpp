@@ -19,17 +19,8 @@ UIMgr::UIMgr()
 }
 UIMgr::~UIMgr()
 {
-    std::map<QPushButton*, ChatData>::iterator it = m_ChatMap.begin();
-    std::map<QPushButton*, ChatData>::iterator end = m_ChatMap.end();
-
-    for ( ; it != end ; )
-    {
-        delete it->second.namelabel;
-        delete it->second.pBtn;
-        delete it->second.layout;
-        delete it->second.widget;
-    }
-
+    DeleteConnectionGUIData();
+    DeleteChatData();
 }
 
 void UIMgr::RecvChat(ComMsg* msg)
@@ -139,8 +130,8 @@ int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
             if( nLen > WORD_LIMIT )
             {
                 nState = FOLD_CHAT_BOX;
-                str.remove(WORD_LIMIT - 3, nLen - WORD_LIMIT + 3);
-                str.insert(WORD_LIMIT - 3,"...");
+                str.remove(WORD_LIMIT, nLen - WORD_LIMIT);
+                str.insert(WORD_LIMIT,"\n...");
             }
 
         }
@@ -177,6 +168,8 @@ void UIMgr::ConnClient(ComMsg* msg)
     hl->setAlignment(Qt::AlignCenter);
 
     m_pWin->AddMsgBox( p1 );
+
+    SetConnectionGUIData( p1, hl, pb );
 
 }
 
@@ -215,6 +208,47 @@ ChatData* UIMgr::FindChat(QPushButton* pBtn )
     }
 
     return &(iter->second);
+}
+void UIMgr::DeleteChatData()
+{
+    std::map<QPushButton*, ChatData>::iterator it = m_ChatMap.begin();
+    std::map<QPushButton*, ChatData>::iterator end = m_ChatMap.end();
+
+    for ( ; it != end ; )
+    {
+        delete it->second.namelabel;
+        delete it->second.pBtn;
+        delete it->second.layout;
+        delete it->second.widget;
+        m_ChatMap.erase( it );
+        it = m_ChatMap.begin();
+
+    }
 
 
 }
+
+void UIMgr::SetConnectionGUIData( QWidget* widget, QVBoxLayout* layout, QLabel* label )
+{
+    ConUIData data = { 0 };
+    data.widget = widget;
+    data.layout = layout;
+    data.label = label;
+
+    m_lstConnectionGUIData.push_back(data);
+}
+void UIMgr::DeleteConnectionGUIData()
+{
+    std::list<ConUIData>::iterator it = m_lstConnectionGUIData.begin();
+    std::list<ConUIData>::iterator end = m_lstConnectionGUIData.end();
+
+    for( ; it != end ; )
+    {
+        delete it->label;
+        delete it->layout;
+        delete it->widget;
+        m_lstConnectionGUIData.pop_front();
+        it = m_lstConnectionGUIData.begin();
+    }
+}
+

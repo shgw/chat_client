@@ -147,6 +147,7 @@ void MainWindow::on_connectBtn_clicked()
             hl->setAlignment(Qt::AlignCenter);
             m_layout->addWidget(p1);
 
+            m_UIMgr.SetConnectionGUIData( p1, hl, pb );
         }
 
 
@@ -166,6 +167,15 @@ void MainWindow::on_sendBtn_clicked()
     QString strMsg = ui->chatline->text();
     std::string str = strMsg.toStdString();
 
+    if( str.length() >= 1024 )
+    {
+        QString msg;
+        msg.sprintf("메시지가 너무 깁니다.(길이 1024이하) 길이[%d]", str.length());
+        QMessageBox box;
+        box.information( this, "Error", msg);
+        return;
+    }
+
     ComMsg msg = { 0 };
     m_ComMgr.MakeHeader( &msg, m_strUserName.toStdString().c_str(), SERVER_NAME, MSGKIND_RQST, MSGID_SENDMSG );
 
@@ -177,7 +187,7 @@ void MainWindow::on_sendBtn_clicked()
     {
         m_log->WriteLog( LOG_LEVEL_ERROR, "on_sendBtn_clicked : Send Error");
         QMessageBox box;
-        box.information( this, "Error", QString::fromLocal8Bit("전송하지 못했습니다."));
+        box.information( this, "Error", "전송하지 못했습니다.");
     }
     else
     {
