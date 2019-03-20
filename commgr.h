@@ -15,11 +15,11 @@ private:
     QString m_svrIP;
     CClientSocket m_cltsock;
     QString m_strUserName;
-    MainWindow* m_interface;
+    //MainWindow* m_interface;
     MsgMgr m_MsgMgr;
 
     bool m_bConnect;
-
+    bool m_bRunThread;
 public:
     CLog m_log;
 
@@ -41,10 +41,10 @@ public:
     void SetConnectionState( bool bConnect);
     QString GetSvrIP();
     QString GetUserName();
-    MainWindow* GetInterface();
 
-    void ExeCallback();
-    void SetInterface( MainWindow* inter);
+    void SetThreadState( bool bState );
+    bool GetThreadState();
+
 
 #ifndef __LINUX
     static unsigned int ProcThread(void* arg);

@@ -8,8 +8,9 @@
 #include "mainwindow.h"
 
 
+
 #define LINE_LIMIT  10
-#define WORD_LIMIT  43
+#define WORD_LIMIT  46
 
 UIMgr::UIMgr()
 {
@@ -73,9 +74,10 @@ void UIMgr::CreateChatBox( ChatData* data, bool bMyMsg)
     QPushButton* pb = new QPushButton(p1);
 
     QFont font;
-    font.setFamily("D2Coding");
-    pb->setFont(font);
+    font.setFamily(FONT_FAMILY);
     nm->setFont(font);
+    font.setPointSize(10);
+    pb->setFont(font);
 
     hl->addWidget(nm);
     hl->addWidget(pb);
@@ -83,16 +85,16 @@ void UIMgr::CreateChatBox( ChatData* data, bool bMyMsg)
 
     if ( bMyMsg == true )
     {
-        pb->setFlat(true);
-
-        pb->setStyleSheet("background-color: #fcf978; border-style: outset;Text-align:left;");
+        pb->setFlat(true);        
+        pb->setStyleSheet("border-image:url(:/mychat.png); border-style: outset;Text-align:left;");
+        //pb->setStyleSheet("background-color: #fcf978; border-style: outset;Text-align:left;");
         hl->setAlignment(Qt::AlignRight);
     }
     else
     {
         pb->setFlat(true);
-        pb->setStyleSheet("background-color: #a4dbff; border-style: outset;Text-align:left;");
-
+        pb->setStyleSheet("border-image:url(:/yourchat.png); border-style: outset;Text-align:left;");
+        //pb->setStyleSheet("background-color: #a4dbff; border-style: outset;Text-align:left;");
         hl->setAlignment(Qt::AlignLeft);
 
     }
@@ -112,6 +114,8 @@ void UIMgr::CreateChatBox( ChatData* data, bool bMyMsg)
 
 int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
 {    
+    char szNL[] = "\n ";
+    int nNLlen = strlen(szNL);
     QString str = msg;
 
     int nState = SPREAD_CHAT_BOX;
@@ -122,7 +126,7 @@ int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
     {
         for( int i = 0 ; i < (nLen-1)/LINE_LIMIT ; i++)
         {
-            str.insert( ((i+1)*LINE_LIMIT)+(i), "\n");
+            str.insert( ((i+1)*LINE_LIMIT)+(i*nNLlen), szNL);
         }
         if( omit == true )
         {
@@ -131,13 +135,13 @@ int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
             {
                 nState = FOLD_CHAT_BOX;
                 str.remove(WORD_LIMIT, nLen - WORD_LIMIT);
-                str.insert(WORD_LIMIT,"\n...");
+                str.insert(WORD_LIMIT,"\n ...");
             }
 
         }
     }
 
-    //str = "\n" + str + "\n";
+    str = " " + str;
     retMsg = str;
 
     return nState;
@@ -164,6 +168,13 @@ void UIMgr::ConnClient(ComMsg* msg)
     QLabel* pb = new QLabel(str, p1);
     pb->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
+    QFont font;
+    font.setFamily(FONT_FAMILY);
+    font.setBold(true);
+    font.setPointSize(10);
+
+    pb->setFont(font);
+
     hl->addWidget(pb);
     hl->setAlignment(Qt::AlignCenter);
 
@@ -187,6 +198,13 @@ void UIMgr::DisconClient(ComMsg* msg)
     QLabel* pb = new QLabel(str, p1);
     pb->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
+
+    QFont font;
+    font.setFamily(FONT_FAMILY);
+    font.setBold(true);
+    font.setPointSize(10);
+
+    pb->setFont(font);
 
     hl->addWidget(pb);
     hl->setAlignment(Qt::AlignCenter);

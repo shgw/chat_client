@@ -15,6 +15,7 @@ ComMgr::ComMgr()
     m_log.SetOption( LOG_LEVEL_DETAIL, "./", "ComMgr.txt");
     m_log.WriteLog(LOG_LEVEL_NOTICE, "==========START ComMgr=============");
     m_bConnect = false;
+    m_bRunThread = false;
 
 }
 
@@ -170,11 +171,6 @@ int ComMgr::DisconnectSocket()
     m_bConnect = false;
     m_cltsock.CloseSocket();
 }
-void ComMgr::SetInterface( MainWindow* inter)
-{
-    m_interface = inter;
-}
-
 
 
 void ComMgr::SetSvrIP(QString strIP)
@@ -214,11 +210,6 @@ QString ComMgr::GetSvrIP()
     return m_svrIP;
 }
 
-MainWindow* ComMgr::GetInterface()
-{
-    return m_interface;
-}
-
 #ifndef __LINUX
 unsigned int ComMgr::ProcThread(void* arg)
 #else
@@ -231,9 +222,7 @@ void* ComMgr::ProcThread(void* arg)
     char szBuff[MSG_MAX_BUFF];
     int nRet;
 
-
-
-    while(1)
+    while( mgr->GetThreadState() )
     {
         if( mgr->GetConnectionState() == true )
         {
@@ -246,7 +235,7 @@ void* ComMgr::ProcThread(void* arg)
             }
             else if (nRet == CSOCKET_FAIL )
             {
-                //ÀçÁ¢
+                //ìž¬ì ‘
                 mgr->SetConnectionState( false );
                 mgr->m_log.WriteLog( LOG_LEVEL_ERROR, "ProcThread : recv error [%d]", GetLastError() );
                 mgr->DisconnectSocket();
@@ -304,6 +293,16 @@ bool ComMgr::GetConnectionState()
 void ComMgr::SetConnectionState( bool bConnect )
 {
     m_bConnect = bConnect;
+}
+
+void ComMgr::SetThreadState( bool bState )
+{
+    m_bRunThread = bState;
+}
+
+bool ComMgr::GetThreadState()
+{
+    return m_bRunThread;
 }
 
 

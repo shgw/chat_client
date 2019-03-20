@@ -56,3 +56,8 @@ LIBS += C:\Qt\Qt5.12.0\Tools\mingw730_64\x86_64-w64-mingw32\lib\libws2_32.a
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res.qrc
+
+DISTFILES +=

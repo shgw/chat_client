@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>mychat.png</file>
+        <file>yourchat.png</file>
+    </qresource>
+</RCC>

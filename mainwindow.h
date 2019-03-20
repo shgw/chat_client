@@ -7,6 +7,8 @@
 #include "uimgr.h"
 #include <qtimer.h>
 
+#define FONT_FAMILY "D2Coding"
+
 #ifdef __LINUX
 #include <pthread.h>
 #endif
@@ -52,11 +54,12 @@ private:
     QTimer* m_timer;
     bool m_bScroll;
 
-    bool m_bThread;
-
 #ifdef __LINUX
     pthread_t m_pthread;
     int m_threaID;
+#else
+    HANDLE m_hthread;
+    unsigned int m_threadID;
 #endif
 
     void SpreadLongMsg(ChatData* data);

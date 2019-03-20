@@ -16,9 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-
-    m_bThread = false;
+    ui->setupUi(this);    
 
     setFixedSize(this->size());
 
@@ -28,16 +26,16 @@ MainWindow::MainWindow(QWidget *parent) :
     WSAStartup(MAKEWORD(2,2), &wsa);
 #endif
 
-    m_ComMgr.SetInterface( this );
 
     QSettings readini( INI_FILENAME, QSettings::IniFormat );
 
     m_strUserName = readini.value( "USER/DEFAULT_NAME").toString();
     m_strSvrIP = readini.value("NETWORK/IP").toString();
 
-
-
     ui->lineEdit->setText( m_strUserName);
+
+    //ui->scrollArea->setStyleSheet("background-color:white");
+
 
     m_log = new CLog();
     m_log->SetOption( LOG_LEVEL_NORMAL, "./", "MainWindow.txt");
@@ -46,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_central = new QWidget;
     m_layout = new QVBoxLayout(m_central);
     m_layout->setAlignment(Qt::AlignTop);
-    ui->scrollArea->setWidget(m_central);
+    ui->scrollArea->setWidget(m_central);    
     ui->scrollArea->setWidgetResizable(true);
     ui->scrollArea->setVerticalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
 
@@ -59,6 +57,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    m_ComMgr.SetThreadState( false );
+#ifndef __LINUX
+    CloseHandle( m_hthread );
+#endif
     delete m_log;
     delete ui;
 }
@@ -124,11 +126,11 @@ void MainWindow::on_connectBtn_clicked()
         }
         else
         {
-            if( m_bThread == false )
+            if( m_ComMgr.GetThreadState() == false )
             {
-                m_bThread = true;
+                m_ComMgr.SetThreadState(true);
 #ifndef __LINUX
-                _beginthreadex( NULL, 0, m_ComMgr.ProcThread, (void*)&m_ComMgr, 0, NULL );
+                m_hthread = (HANDLE)_beginthreadex( NULL, 0, m_ComMgr.ProcThread, (void*)&m_ComMgr, 0, &m_threadID );
 #else
                 m_threaID = pthread_create( &m_pthread, NULL, m_ComMgr.ProcThread, (void*)&m_ComMgr );
 #endif
@@ -140,8 +142,14 @@ void MainWindow::on_connectBtn_clicked()
 
             QWidget* p1 = new QWidget;
             QVBoxLayout *hl = new QVBoxLayout(p1);
-            QLabel* pb = new QLabel("접속 됐습니다.", p1);
+            QLabel* pb = new QLabel("접속 했습니다.", p1);
             pb->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
+
+            QFont font;
+            font.setFamily(FONT_FAMILY);
+            font.setBold(true);
+            font.setPointSize(10);
+            pb->setFont(font);
 
             hl->addWidget(pb);
             hl->setAlignment(Qt::AlignCenter);
