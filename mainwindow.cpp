@@ -175,12 +175,26 @@ void MainWindow::on_sendBtn_clicked()
     QString strMsg = ui->chatline->text();
     std::string str = strMsg.toStdString();
 
+    if( str.length() == 0 )
+    {
+        return;
+    }
+
     if( str.length() >= 1024 )
     {
         QString msg;
         msg.sprintf("메시지가 너무 깁니다.(길이 1024이하) 길이[%d]", str.length());
         QMessageBox box;
         box.information( this, "Error", msg);
+        ui->chatline->setText("");
+        return;
+    }
+
+    if(str.compare("/clear") == 0 )
+    {
+        m_UIMgr.DeleteConnectionGUIData();
+        m_UIMgr.DeleteChatData();
+        ui->chatline->setText("");
         return;
     }
 
@@ -351,6 +365,9 @@ void MainWindow::FoldLongMsg(ChatData* data)
 
 }
 
-
+void MainWindow::SaveMessage()
+{
+    m_UIMgr.SaveMessage();
+}
 
 

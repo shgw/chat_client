@@ -10,13 +10,10 @@
 
 
 #define LINE_LIMIT  10
-#define WORD_LIMIT  46
+#define WORD_LIMIT  43
 
 UIMgr::UIMgr()
 {
-    m_log.SetOption( LOG_LEVEL_DETAIL, "./", "UIMGR.txt");
-    m_log.WriteLog(LOG_LEVEL_NOTICE, "==========START UIMGR=============");
-
 }
 UIMgr::~UIMgr()
 {
@@ -85,18 +82,16 @@ void UIMgr::CreateChatBox( ChatData* data, bool bMyMsg)
 
     if ( bMyMsg == true )
     {
-        pb->setFlat(true);        
-        pb->setStyleSheet("border-image:url(:/mychat.png); border-style: outset;Text-align:left;");
-        //pb->setStyleSheet("background-color: #fcf978; border-style: outset;Text-align:left;");
+        nm->setAlignment(Qt::AlignRight);
+        pb->setFlat(true);
+        pb->setStyleSheet("border-image:url(:/mychat.png);Text-align:left;padding:10px;");
         hl->setAlignment(Qt::AlignRight);
     }
     else
     {
         pb->setFlat(true);
-        pb->setStyleSheet("border-image:url(:/yourchat.png); border-style: outset;Text-align:left;");
-        //pb->setStyleSheet("background-color: #a4dbff; border-style: outset;Text-align:left;");
+        pb->setStyleSheet("border-image:url(:/yourchat.png);Text-align:left;padding:10px;");
         hl->setAlignment(Qt::AlignLeft);
-
     }
 
 
@@ -114,7 +109,7 @@ void UIMgr::CreateChatBox( ChatData* data, bool bMyMsg)
 
 int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
 {    
-    char szNL[] = "\n ";
+    char szNL[] = "\n";
     int nNLlen = strlen(szNL);
     QString str = msg;
 
@@ -135,13 +130,12 @@ int UIMgr::ConvertMsg(char* msg, bool omit, QString& retMsg)
             {
                 nState = FOLD_CHAT_BOX;
                 str.remove(WORD_LIMIT, nLen - WORD_LIMIT);
-                str.insert(WORD_LIMIT,"\n ...");
+                str.insert(WORD_LIMIT,"\n...");
             }
 
         }
     }
 
-    str = " " + str;
     retMsg = str;
 
     return nState;
@@ -211,6 +205,8 @@ void UIMgr::DisconClient(ComMsg* msg)
 
     m_pWin->AddMsgBox( p1 );
 
+    SetConnectionGUIData( p1, hl, pb );
+
 }
 
 
@@ -268,5 +264,39 @@ void UIMgr::DeleteConnectionGUIData()
         m_lstConnectionGUIData.pop_front();
         it = m_lstConnectionGUIData.begin();
     }
+}
+
+void UIMgr::SaveMessage()
+{
+    std::map<QPushButton*, ChatData>::iterator it = m_ChatMap.begin();
+    std::map<QPushButton*, ChatData>::iterator end = m_ChatMap.end();
+
+    std::string str = "";
+
+    for( ; it != end ; it++ )
+    {
+        str += it->second.username;
+        str += " : ";
+        str += it->second.chat;
+        str += "\n";
+    }
+
+    FILE* f;
+
+    time_t cur_time;
+    struct tm* cur_tm;
+    cur_time = time(NULL);
+    cur_tm = localtime( &cur_time );
+    char fname[128] = { 0 };
+    sprintf( fname, "Chat%04d%02d%02d%02d%02d%02d.txt ",
+             cur_tm->tm_year+1900, cur_tm->tm_mon+1, cur_tm->tm_mday, cur_tm->tm_hour, cur_tm->tm_min, cur_tm->tm_sec);
+
+    f = fopen( fname, "a+");
+    fwrite( str.c_str(), sizeof(char), str.length(), f);
+    fclose(f);
+
+
+
+
 }
 

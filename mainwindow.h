@@ -73,6 +73,7 @@ public:
     void ProcEvt( ComMsg* msg);
     void AddChatBox(QWidget* pb, ChatData* data);
     void AddMsgBox(QWidget* pb );
+    void SaveMessage();
 
 };
 

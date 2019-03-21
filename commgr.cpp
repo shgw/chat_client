@@ -7,7 +7,13 @@
 #ifdef __LINUX
 #include <unistd.h>
 #define Sleep   usleep
+#define SLEEP_TIME  1000
+#define DISCONNECT_SLEEP_TIME 5000000
+#else
+#define SLEEP_TIME  1
+#define DISCONNECT_SLEEP_TIME 5000
 #endif
+
 
 ComMgr::ComMgr()
 {
@@ -216,7 +222,7 @@ unsigned int ComMgr::ProcThread(void* arg)
 void* ComMgr::ProcThread(void* arg)
 #endif
 {
-    int nSleepTime = 1;
+    int nSleepTime = SLEEP_TIME;
     ComMgr* mgr = (ComMgr*)arg;
 
     char szBuff[MSG_MAX_BUFF];
@@ -251,13 +257,13 @@ void* ComMgr::ProcThread(void* arg)
             mgr->m_log.WriteLog( LOG_LEVEL_NORMAL, "ProcThread : Reconnect" );
             if( mgr->ConnectSocket( mgr->GetSvrIP(), mgr->GetUserName(), NULL ) == CSOCKET_SUCC )
             {
-                nSleepTime = 1;
+                nSleepTime = SLEEP_TIME;
                 mgr->SetConnectionState( true );
                 mgr->m_log.WriteLog( LOG_LEVEL_NORMAL, "ProcThread : Reconnect Success." );
             }
             else
             {
-                nSleepTime = 5000;
+                nSleepTime = DISCONNECT_SLEEP_TIME;
                 mgr->m_log.WriteLog( LOG_LEVEL_ERROR, "ProcThread : Reconnect Fail error [%d]", GetLastError() );
             }
 

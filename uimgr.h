@@ -48,8 +48,6 @@ private:
 
     std::list<ConUIData> m_lstConnectionGUIData;
 
-    CLog m_log;
-
 public:
     UIMgr();
     ~UIMgr();
@@ -64,6 +62,7 @@ public:
     void DeleteChatData();
     void SetConnectionGUIData( QWidget* widget, QVBoxLayout* layout, QLabel* label );
     void DeleteConnectionGUIData();
+    void SaveMessage();
 };
 
 #endif // UIMGR_H
