@@ -5,6 +5,8 @@
 #include <qscrollbar.h>
 #include <qsettings.h>
 #include <qlayout.h>
+#include <qshortcut.h>
+#include <qtimer.h>
 
 #define TIMER           100
 #define MSG_MAX_BUFF    2048
@@ -52,16 +54,30 @@ MainWindow::MainWindow(QWidget *parent) :
     m_timer = new QTimer();
     connect( m_timer, SIGNAL(timeout()), this, SLOT(OnTimer()));
 
-    ui->sendBtn->setShortcut(Qt::Key_Return);    
+
+    m_scSendBtn1 = new QShortcut(Qt::Key_Return, this);
+    QPushButton::connect( m_scSendBtn1, SIGNAL( activated() ), this, SLOT( on_sendBtn_clicked() ) );
+    m_scSendBtn2 = new QShortcut(Qt::Key_Enter, this);
+    QPushButton::connect( m_scSendBtn2, SIGNAL( activated() ), this, SLOT( on_sendBtn_clicked() ) );
+
+
+
+
+
 }
 
 MainWindow::~MainWindow()
-{
+{    
     m_ComMgr.SetThreadState( false );
 #ifndef __LINUX
     CloseHandle( m_hthread );
 #endif
+    delete m_scSendBtn1;
+    delete m_scSendBtn2;
+    delete m_timer;
     delete m_log;
+    delete m_layout;
+    delete m_central;
     delete ui;
 }
 
@@ -79,7 +95,6 @@ void MainWindow::on_connectBtn_clicked()
         QMessageBox box;
         box.information(this, "Error", "이미 접속 중 입니다.");
         return;
-
     }
     if( m_strSvrIP.length() <= 0)
     {
@@ -100,7 +115,6 @@ void MainWindow::on_connectBtn_clicked()
     {
         QSettings writeini( INI_FILENAME, QSettings::IniFormat );
         writeini.setValue("USER/DEFAULT_NAME", m_strUserName);
-
     }
 
     if(  m_strUserName.toStdString().length() >= 20)
@@ -194,6 +208,12 @@ void MainWindow::on_sendBtn_clicked()
     {
         m_UIMgr.DeleteConnectionGUIData();
         m_UIMgr.DeleteChatData();
+        ui->chatline->setText("");
+        return;
+    }
+    else if (str.compare("/save") == 0 )
+    {
+        m_UIMgr.SaveMessage();
         ui->chatline->setText("");
         return;
     }
@@ -298,7 +318,6 @@ void MainWindow::AddChatBox(QWidget* pb, ChatData* data)
 
 void MainWindow::AddMsgBox(QWidget* pb )
 {
-
     m_layout->addWidget(pb);
     m_bScroll = true;
 }
@@ -342,7 +361,6 @@ void MainWindow::ProcLongMsg()
     {
         SpreadLongMsg(data);
     }
-
 }
 
 
@@ -353,21 +371,14 @@ void MainWindow::SpreadLongMsg(ChatData* data)
     m_UIMgr.ConvertMsg( data->chat, false, str);
     data->pBtn->setText( str );
     data->state *= -1;
-
 }
 void MainWindow::FoldLongMsg(ChatData* data)
 {
-
     QString str;
     m_UIMgr.ConvertMsg( data->chat, true, str);
     data->pBtn->setText( str );
     data->state *= -1;
-
 }
 
-void MainWindow::SaveMessage()
-{
-    m_UIMgr.SaveMessage();
-}
 
 

@@ -5,7 +5,6 @@
 #include "settingdialog.h"
 #include "commgr.h"
 #include "uimgr.h"
-#include <qtimer.h>
 
 #define FONT_FAMILY "D2Coding"
 
@@ -13,6 +12,8 @@
 #include <pthread.h>
 #endif
 
+class QTimer;
+class QShortcut;
 
 namespace Ui {
 class MainWindow;
@@ -54,6 +55,11 @@ private:
     QTimer* m_timer;
     bool m_bScroll;
 
+    QShortcut* m_scSendBtn1;
+    QShortcut* m_scSendBtn2;
+
+
+
 #ifdef __LINUX
     pthread_t m_pthread;
     int m_threaID;
@@ -73,7 +79,6 @@ public:
     void ProcEvt( ComMsg* msg);
     void AddChatBox(QWidget* pb, ChatData* data);
     void AddMsgBox(QWidget* pb );
-    void SaveMessage();
 
 };
 
