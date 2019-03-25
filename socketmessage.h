@@ -2,15 +2,20 @@
 #define SOCKETMESSAGE_H
 
 #define MSG_LENGTH      4
+
 #define SOURCE_LENGTH   20
 #define DEST_LENGTH     20
 #define MSGKIND_LENGTH  5
 #define MSGID_LENGTH    8
+
+#define HEADER_SIZE     (SOURCE_LENGTH + DEST_LENGTH + MSGKIND_LENGTH + MSGID_LENGTH)
+
 #define BODY_LENGTH     2048
+#define MSG_FULL_LENGTH (HEADER_SIZE + BODY_LENGTH)
 
 #define RESULT_LENGTH   5
 #define REASON_LENGTH   1024
-#define CHAT_LENGTH   1024
+#define CHAT_LENGTH     1024
 
 
 #define SERVER_NAME     "SERVER"
@@ -29,7 +34,7 @@
 #define MSG_REASON_SN   "SAME_NAME"
 #define MSG_REASON_NR   "NONREG"
 
-#define HEADER_SIZE     53
+
 
 
 typedef struct _ST_COM_MSG
