@@ -163,6 +163,8 @@ int CLog::GetLogLevelString( int nLevel, char* buf)
     char normal[] = "NORMAL";
     char warn[] = "WARNING";
     char error[] = "ERROR";
+    char fatal[] = "FATAL";
+    char notice[] = "NOTICE";
 
     if ( nLevel >= LOG_LEVEL_DETAIL)
     {
@@ -176,9 +178,17 @@ int CLog::GetLogLevelString( int nLevel, char* buf)
     {
         pLevel = warn;
     }
-    else
+    else if ( nLevel >= LOG_LEVEL_ERROR )
     {
         pLevel = error;
+    }
+    else if ( nLevel >= LOG_LEVEL_FATAL )
+    {
+        pLevel = fatal;
+    }
+    else
+    {
+        pLevel = notice;
     }
     time_t cur_time;
     struct tm* cur_tm;

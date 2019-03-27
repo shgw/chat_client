@@ -24,7 +24,6 @@ private slots:
 private:
     Ui::SettingDialog *ui;
     MainWindow* m_parent;
-    void (MainWindow::*func)();
 
 
 public:
